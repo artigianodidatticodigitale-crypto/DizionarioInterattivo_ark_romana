@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glossario Architettura Romana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f5f0;
+        }
+        h1, h2 {
+            font-family: 'Cinzel', serif;
+        }
+        .glossary-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .glossary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            object-fit: contain;
+        }
+        .search-container {
+            background: linear-gradient(135deg, #2c3e50, #000000);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header & Search -->
+    <header class="search-container text-white py-12 px-4 shadow-xl">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 tracking-wider text-amber-100">Architettura Romana</h1>
+            <p class="text-stone-300 mb-8 italic">Glossario Interattivo dei Termini Tecnici</p>
+            
+            <div class="relative max-w-xl mx-auto">
+                <input type="text" id="searchInput" 
+                    placeholder="Cerca un termine (es. Arco, Arena, Cella...)" 
+                    class="w-full px-6 py-4 rounded-full text-gray-900 focus:outline-none focus:ring-4 focus:ring-amber-500 shadow-lg text-lg">
+                <div class="absolute right-6 top-4 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto py-12 px-6">
+        <div id="glossaryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Le card verranno generate via JavaScript -->
+        </div>
+        
+        <div id="noResults" class="hidden text-center py-20">
+            <p class="text-xl text-gray-500 italic">Nessun termine trovato per la tua ricerca.</p>
+        </div>
+    </main>
+
+    <!-- Modal per Immagini -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="absolute top-5 right-10 text-white text-5xl cursor-pointer font-bold hover:text-amber-500 transition-colors">&times;</span>
+        <div class="flex flex-col items-center">
+            <img id="modalImg" src="" alt="Dettaglio Architetturale">
+            <h3 id="modalCaption" class="text-amber-500 text-2xl mt-4 font-serif uppercase tracking-widest"></h3>
+        </div>
+    </div>
+
+    <script>
+        const glossaryData = [
+            { 
+                voce: "Ambulacri", 
+                significato: "Sistema di corridoi anulari (ad anello) che si sviluppano all'interno di teatri e anfiteatri, necessari per incanalare il pubblico verso le scale di accesso ai posti a sedere.", 
+                img: "https://www.romaspqr.it/roma/Foto/Teatro_di_Marcello_-_interno.JPG"
+            },
+            { voce: "Anfiteatro", significato: "Tipologia edilizia tipicamente romana a pianta ellittica, nata dall'unione di due teatri, destinata a spettacoli pubblici come i combattimenti tra gladiatori.", img: "https://i.pinimg.com/originals/c4/8b/c0/c48bc0b4e6faaaf96e703f3e5c0c5015.jpg" },
+            { voce: "Arco a tutto sesto", significato: "Elemento architettonico di forma semicircolare composto da conci.", img: "https://viaggioinsecondaclasse2012.wordpress.com/wp-content/uploads/2014/02/arco-tutto-sesto.jpg" },
+            { voce: "Arena", significato: "Spazio centrale ellittico di un anfiteatro, destinato ai combattimenti, il cui pavimento era cosparso di sabbia per assorbire il sangue.", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Arena_di_Verona_Vr.jpg/960px-Arena_di_Verona_Vr.jpg" },
+            { voce: "Attico", significato: "Muro continuo decorato da lesene e intervallato da finestroni squadrati, presente sulla sommità della parte esterna di un teatro o anfiteatro.", img: "https://www.artesvelata.it/wp-content/uploads/2021/01/Anfiteatro-Flavio-o-Colosseo-72-76-d.C.-Prospetto.-Particolare-con-lattico-arte-svelata.jpg" },
+            { voce: "Calce", significato: "Polvere ottenuta dalla cottura e macinazione di rocce calcaree; mescolata con acqua e sabbia forma la malta.", img: "https://info.caparolmedia.it/hubfs/calce_shutterstock_721715206.jpg" },
+            { voce: "Calcestruzzo", significato: "Materiale da costruzione costituito da un impasto di calce, pozzolana, acqua e inerti (pietrisco, frammenti di tegole e mattoni).", img: "https://images.jpost.com/image/upload/f_auto,fl_lossy/q_auto/c_fill,g_faces:center,h_720,w_1280/641369" },
+            { voce: "Cavea", significato: "In un teatro o anfiteatro, l'insieme delle gradinate per gli spettatori, suddivisa in settori orizzontali per riflettere la gerarchia sociale.", img: "https://upload.wikimedia.org/wikipedia/commons/4/4b/Cavea_del_teatro_romano_di_Benevento.jpg" },
+            { voce: "Cella", significato: "L'ambiente principale di un tempio.", img: "https://www.miti3000.it/mito/varie/img/templi/cella.jpg" },
+            { voce: "Centina", significato: "Struttura provvisoria in legno che sostiene l'arco o la volta finché la sua costruzione non è conclusa.", img: "https://www.voltestella.it/sitoaggiornato/wp-content/uploads/2012/04/Centina-mobile-per-volta-a-botte-11.jpg" },
+            { voce: "Conci trapezoidali", significato: "Blocchi di pietra sagomati a forma di trapezio che, disposti a semicerchio, formano la struttura dell'arco, garantendo resistenza alla compressione.", img: "https://s3.mokazine.com/moka/26933/pages/big/5e79cb5e72286.jpg" },
+            { voce: "Cunei", significato: "Spicchi o settori di forma triangolare in cui era divisa verticalmente la cavea di un teatro o anfiteatro, delimitati da scalinate di accesso.", img: "https://www.parcoarcheologicorudiae.it/wp-content/uploads/2019/06/6.Rudiae-Fondo-Anfiteatro.jpg" },
+            { voce: "Cupola", significato: "Copertura emisferica.", img: "https://www.vistanet.it/roma/wp-content/uploads/sites/4/2021/01/pantheon-roma-solstizio-estate-inverno-astronomia-luce-260321-1_1280.jpg" },
+            { voce: "Edicola", significato: "Struttura architettonica, costituita da due colonne che reggono un timpano.", img: "https://www.borgato.be/MISCELLANEA/ROMA_COLONNA-A-PAN/assets/images/autogen/a_Piazza_della_Rotonda-Pantheon-Edicola_della_Madonna_del_Sasso__2_.jpg" },
+            { voce: "Estradosso", significato: "La superficie esterna, convessa, di un arco o di una volta.", img: "https://www.structuralweb.it/UserFiles/Image/A65%20orfanatrofio%20Ruredil/02voltaombr(580x).jpg" },
+            { voce: "Freccia (o monta)", significato: "La distanza verticale tra il piano d'imposta e il punto più alto dell'intradosso di un arco.", img: "https://s3.mokazine.com/moka/26933/pages/big/5e79cb5e72286.jpg" },
+            { voce: "Frontone", significato: "Elemento di forma triangolare che sormonta la facciata del tempio.", img: "https://www.funweek.it/app/uploads/2020/05/pantheon-iscrizione-latina-shutterstock_1694236807-1.jpg" },
+            { voce: "Ipogei", significato: "Ambienti sotterranei di servizio situati sotto il pavimento dell'arena del Colosseo, dove venivano custodite le attrezzature e le gabbie delle belve.", img: "https://www.italiaatavola.net/images/contenutiarticoli/colosseo-ipogeo.jpg" },
+            { voce: "Lacunari (o Cassettoni)", significato: "Incavi quadrangolari che decorano l'intradosso (superficie interna) di un soffitto piano o curvo (volta o cupola). Hanno la funzione di alleggerire la struttura.", img: "https://www.hmdb.org/Photos7/739/Photo739759.jpg?727202363900PM" },
+            { voce: "Laterizio", significato: "Materiale da costruzione costituito da mattoni in terracotta.", img: "https://www.cortogno.it/wp-content/uploads/2014/04/coppi1.jpg" },
+            { voce: "Lesena (o parasta)", significato: "Elemento decorativo verticale simile a una semi-colonna, ma piatta.", img: "https://www.artesvelata.it/wp-content/uploads/2021/01/Anfiteatro-Flavio-o-Colosseo-72-76-d.C.-Prospetto.-Particolare-con-lattico-arte-svelata.jpg" },
+            { voce: "Luce (o corda)", significato: "La distanza orizzontale tra i due piedritti di un arco.", img: "https://s3.mokazine.com/moka/26933/pages/big/5e79cb5e72286.jpg" },
+            { voce: "Malta", significato: "Impasto di calce, sabbia e acqua che serve a legare tra loro i materiali.", img: "https://www.bancadellacalce.it/bdc/wp-content/uploads/2019/09/corso-restauro-bioarchitettura-banca-della-calce.jpg" },
+            { voce: "Moeniana", significato: "Gallerie o anelli orizzontali sovrapposti in cui era suddivisa la cavea di un teatro o anfiteatro; ciascuno era riservato a una specifica classe sociale.", img: "https://www.dovearoma.it/wp-content/uploads/Colosseo-architettura.jpg" },
+            { voce: "Nicchie", significato: "Ampie cavità semicircolari o quadrangolari scavate nello spessore di un muro.", img: "https://www.10cose.it/wp-content/uploads/2016/05/tombe-famose-pantheon-roma.jpg" },
+            { voce: "Oculo", significato: "Ampia apertura circolare posta sulla sommità di una cupola.", img: "https://www.vistanet.it/roma/wp-content/uploads/sites/4/2021/01/pantheon-roma-solstizio-estate-inverno-astronomia-luce-260321-1_1280.jpg" },
+            { voce: "Piedritto", significato: "Elemento verticale (pilastro o muro) su cui poggia l'arco e che ne riceve il peso.", img: "https://s3.mokazine.com/moka/26933/pages/big/5e79cb5e72286.jpg" },
+            { voce: "Pilastro", significato: "Elemento quadrato o rettangolare su cui poggiano gli archi.", img: "https://www.94roomsvatican.com/wp-content/uploads/2022/09/acquuedotto-romano4-scaled.jpg" },
+            { voce: "Pozzolana", significato: "Sabbia vulcanica che permette alla malta di diventare idraulica e resistere all'acqua.", img: "https://www.edilvibroedilizia.it/wp-content/uploads/2024/11/Sabbia-Pozzolana-3-scaled.jpg" },
+            { voce: "Pronao", significato: "Portico d'ingresso rettangolare che precede la cella del tempio.", img: "https://www.miti3000.it/mito/varie/img/templi/pronao.jpg" },
+            { voce: "Rinfianco", significato: "Riempimento massiccio alla base di una volta o di una cupola, necessario per evitare il collasso della struttura.", img: "https://s3.mokazine.com/moka/26933/pages/big/5e79cb5e72286.jpg" },
+            { voce: "Sesto", significato: "La linea curva interna dell'arco che ne determina la forma (nell'arco a tutto sesto è un semicerchio).", img: "https://www.didatticarte.it/public/arco-tutto-sesto.jpg" },
+            { voce: "Sistema archivoltato", significato: "Sistema costruttivo basato sul principio dell'arco, che permette di scaricare il peso in modo più efficiente rispetto al sistema trilitico.", img: "https://www.giuntiscuola.it/media/filer_public/c2/5a/c25a2d6b-01e7-4a9f-bbb6-2b275fa4b86f/vs9_21_arco.png" },
+            { voce: "Travertino", significato: "Pietra calcarea robusta utilizzata ampiamente dai Romani.", img: "https://www.vaselli.com/wp-content/uploads/2016/04/travertino-bianco-rapolano-falda-e1462874414778-800x800.jpg" },
+            { voce: "Velarium", significato: "Un complesso sistema di tende da sole in stoffa che proteggeva gli spettatori dell'Anfiteatro Flavio dal calore e dalle intemperie.", img: "https://www.vistanet.it/roma/wp-content/uploads/sites/4/2021/09/colosseo4.jpg" },
+            { voce: "Venationes", significato: "Termine tecnico per indicare gli spettacoli di caccia alle belve feroci.", img: "https://www.romeandart.eu/images/news/venationes-origini-significati-1.jpg" },
+            { voce: "Volta", significato: "Copertura di un ambiente con forma curva, concava verso l'interno e convessa verso l'esterno.", img: "https://i.pinimg.com/736x/21/87/1b/21871b19349cbcaa8b9f22509d8c3cfc.jpg" }
+        ];
+
+        const glossaryGrid = document.getElementById('glossaryGrid');
+        const searchInput = document.getElementById('searchInput');
+        const noResults = document.getElementById('noResults');
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImg');
+        const modalCaption = document.getElementById('modalCaption');
+
+        function displayTerms(filter = "") {
+            glossaryGrid.innerHTML = "";
+            const searchQuery = String(filter).toLowerCase();
+            const filtered = glossaryData.filter(item => 
+                item.voce.toLowerCase().includes(searchQuery)
+            );
+
+            if (filtered.length === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+                filtered.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = "glossary-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col cursor-pointer";
+                    card.onclick = () => openModal(item.img, item.voce);
+                    
+                    card.innerHTML = `
+                        <div class="h-48 overflow-hidden bg-gray-200 relative">
+                            <img src="${item.img}" alt="${item.voce}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400?text=Immagine+non+disponibile'">
+                            <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-40 text-white px-4 py-1 text-[10px] uppercase tracking-widest font-semibold">
+                                Clicca per ingrandire
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col">
+                            <h2 class="text-xl font-bold text-amber-900 mb-3 border-b border-amber-100 pb-2">${item.voce}</h2>
+                            <p class="text-gray-600 leading-relaxed text-sm flex-grow">${item.significato}</p>
+                        </div>
+                    `;
+                    glossaryGrid.appendChild(card);
+                });
+            }
+        }
+
+        function openModal(src, title) {
+            modalImg.src = src;
+            modalCaption.innerText = title;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; 
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            displayTerms(e.target.value);
+        });
+
+        window.onload = () => displayTerms("");
+    </script>
+</body>
+</html>
